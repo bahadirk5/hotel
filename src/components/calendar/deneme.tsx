@@ -169,8 +169,6 @@ export function CustomCalendar() {
     }
   }, [daysInMonth]);
 
-  // Problem: If the end of a booking coincides with the beginning of another booking, the calendar grid is distorted.
-  // Solution: Adjust the handling of bookings so that overlapping bookings are displayed correctly without distorting the grid.
   function getBookingSpan(booking: Booking, start: Date, end: Date) {
     const checkIn = parseISO(booking.startDate);
     const checkOut = endOfDay(parseISO(booking.endDate));
@@ -184,7 +182,6 @@ export function CustomCalendar() {
 
     const span = differenceInDays(bookingEnd, bookingStart) + 1;
     const offset = differenceInDays(bookingStart, start);
-
     return { span, offset };
   }
 
@@ -288,6 +285,7 @@ export function CustomCalendar() {
                 "rounded border bg-background p-4 text-center text-lg font-bold",
                 isToday(day) && "bg-cyan-200",
               )}
+              style={{ gridColumn: `span 2` }}
             >
               {format(day, "EEE d")}
             </div>
@@ -324,7 +322,7 @@ export function CustomCalendar() {
                         {room.name}
                       </div>
                     </div>
-                    {daysInMonth.map((day, i) => {
+                    {daysInMonth.flatMap((day, i) => {
                       const booking = splitBookings.find(
                         (booking) =>
                           booking.roomId === room.id &&
@@ -350,8 +348,8 @@ export function CustomCalendar() {
                               key={`${booking.roomId}-${booking.startDate}-${booking.endDate}`}
                               className="col-span-auto relative col-start-auto rounded border bg-cyan-400 p-2 text-white"
                               style={{
-                                gridColumnStart: i + 2,
-                                gridColumnEnd: `span ${span}`,
+                                gridColumnStart: i * 2 + 2,
+                                gridColumnEnd: `span ${span * 2}`,
                               }}
                             >
                               {booking.guestName}
